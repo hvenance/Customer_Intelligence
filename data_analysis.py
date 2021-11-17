@@ -14,7 +14,7 @@ new_df = pd.read_csv('spending_frequency_score.csv')
 
 
 # EXPLORATION
-print(df.describe())
+# print(df.describe())
 
 
 
@@ -31,23 +31,20 @@ def export_hist(df, feature, title, output_name, log_y=False, nbins=40, box_plot
                         marginal= 'box' if box_plot else None
         )
 
-    # figure.write_image(f"images/{output_name}.png")
-    figure.show()
+    figure.write_image(f"images/{output_name}.png")
+    # figure.show()
 
-# export_hist(df=df, feature='price', title="Histogram of the orders' price.", nbins=40, output_name='hist_price_raw_data')
+export_hist(df=df, feature='price', title="Histogram of the orders' price.", nbins=40, output_name='hist_price_raw_data')
 
-# export_hist(df=df[df['price'] > 0], feature='price', log_y=True,
-#                                             title="Logarithmic histogram of the orders' price withtout the outliers.",
-                                            # nbins=40,
-                                            # output_name='hist_price_without_outliers')
+export_hist(df=df[df['price'] > 0], feature='price', log_y=True,
+                                            title="Logarithmic histogram of the orders' price withtout the outliers.",
+                                            nbins=40,
+                                            output_name='hist_price_without_outliers')
 
-# export_hist(df=df[df['q'] != 0], feature='q', title="Histogram of the orders' quantity bought.", log_y=True, nbins=40, output_name='hist_quantity')
+export_hist(df=df[df['q'] != 0], feature='q', title="Histogram of the orders' quantity bought.", log_y=True, nbins=40, output_name='hist_quantity')
 
-# export_hist(df=new_df, feature='spending_score', title='Histogram of spending score', nbins=40, log_y=False, output_name="hist_spending_score")
+export_hist(df=new_df, feature='spending_score', title='Histogram of spending score', nbins=40, log_y=False, output_name="hist_spending_score")
 
-# export_hist(df=new_df, feature='frequency_score', title='Histogram of frequency score', nbins=40, log_y=False, output_name="hist_freq_score")
+export_hist(df=new_df, feature='frequency_score', title='Histogram of frequency score', nbins=40, log_y=False, output_name="hist_freq_score")
 
 
-# if __name__ == "__main__":
-#     fig = ff.create_distplot([df['price']], ['Price'])
-#     fig.write_image(f"images/dist_plot_basic.png")
