@@ -1,53 +1,83 @@
+#import libraries
+import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
-import plotly.express as px
-from plotly.offline import plot
-import numpy as np 
-import plotly.figure_factory as ff
-import os
+from sklearn.cluster import KMeans
+#import pandas_profiling
+import matplotlib
+matplotlib.use('qt5agg')
+
+#load dataset
+data = pd.read_csv("C:/Users/Hadrien Venance/customerIntelligence/MarketSegmentation/or.csv")
+print(data.head())
+
+#clean the dataset
+print(" \nshow the boolean Dataframe : \n\n", data.isnull())
+
+# Count total NaN at each column in a DataFrame
+print(" \nCount total NaN at each column in a DataFrame : \n\n",
+      data.isnull().sum())
+
+#drop the clients without customer_id
+data = data.dropna(subset=['cid'])
+
+max(data['price'])
+min(data['price'])
+abs(max(data['price'])-min(data['price']))
+
+#we see that no prices are negative anymore
+np.sum(np.array(data['price'])<= 0)
 
 
-# IMPORT DB 
-df = pd.read_csv('or.csv') 
+#creating spending_score variable
+spending_df = data.iloc[:, [5,6]]
+spending_df.head()
 
-new_df = pd.read_csv('spending_frequency_score.csv')
+spending_score = spending_df.groupby('cid').sum()
+print(spending_score)
+spending_score = spending_score.reset_index()
+print(spending_score)
+spending_score.iloc[:,0]
+spending_score.iloc[:,1]
+missing_spending = spending_score[spending_score['cid'].isnull()]
 
-
-
-# EXPLORATION
-print(df.describe())
-
-
-
-if not os.path.exists("images"):
-    os.mkdir("images")
-
-def export_hist(df, feature, title, output_name, log_y=False, nbins=40, box_plot=True):
-    figure = px.histogram(
-                        df,
-                        x=feature,
-                        title=title,
-                        log_y=log_y,
-                        nbins=nbins,
-                        marginal= 'box' if box_plot else None
-        )
-
-    # figure.write_image(f"images/{output_name}.png")
-    figure.show()
-
-# export_hist(df=df, feature='price', title="Histogram of the orders' price.", nbins=40, output_name='hist_price_raw_data')
-
-# export_hist(df=df[df['price'] > 0], feature='price', log_y=True,
-#                                             title="Logarithmic histogram of the orders' price withtout the outliers.",
-                                            # nbins=40,
-                                            # output_name='hist_price_without_outliers')
-
-# export_hist(df=df[df['q'] != 0], feature='q', title="Histogram of the orders' quantity bought.", log_y=True, nbins=40, output_name='hist_quantity')
-
-# export_hist(df=new_df, feature='spending_score', title='Histogram of spending score', nbins=40, log_y=False, output_name="hist_spending_score")
-
-# export_hist(df=new_df, feature='frequency_score', title='Histogram of frequency score', nbins=40, log_y=False, output_name="hist_freq_score")
+#according to our boxplot (see graph_data_analysis file) the upper bound of the spending score should be 1061.65, the rest of the observations is outliers.
+spending_score = spending_score[spending_score['price'] <= 1061.65]
 
 
-# if __name__ == "__main__":
-#     fig = ff.create_distplot([df['price']], ['Price'])
-#     fig.write_image(f"images/dist_plot_basic.png")
+#creating frequency_score variable
+frequency_df = data.iloc[:, [1,6]]
+frequency_df.head()
+
+frequency_score = frequency_df.groupby('cid').count()
+print(frequency_score)
+type(frequency_score)
+
+#according to our boxplot the upper bound of the frequency score should be 328, the rest of the observations is outliers.
+frequency_score = frequency_score[frequency_score['inv'] <= 328]
+
+
+#new dataframe to combine the 2 newly created variables
+new_df = pd.merge(frequency_score, spending_score, on='cid')
+new_df.head()
+
+#rename columns of this new_df
+new_df = new_df.rename(columns={'cid':'customer_ID', 'inv':'frequency_score', 'price':'spending_score'})
+new_df.head()
+
+#to write the new database containing frequency and spending score on a new csv file
+new_df.to_csv('spending_frequency_score.csv')
+
+
+
+
+#if __name__ == '__main__':
+    # Override default pandas configuration
+    #pd.options.display.width = 0
+    #pd.options.display.max_rows = 10000
+    #pd.options.display.max_info_columns = 10000
+    #df = data
+    #prof = pandas_profiling.ProfileReport(df=df)
+    #prof.to_file('pandas_profile_test.html')
+
+

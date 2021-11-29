@@ -1,4 +1,4 @@
-,cid,frequency_score,spending_score
+,customer_ID,frequency_score,spending_score
 0,12346.0,48,580.44
 1,12347.0,253,644.16
 2,12348.0,51,193.1
